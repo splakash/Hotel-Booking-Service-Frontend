@@ -82,7 +82,7 @@ export default function Home() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8081/v1/search-details', {
+      const response = await fetch('https://hotel-booking-service-rgs2.onrender.com/v1/search-details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export default function Home() {
 
       setLoading(true)
       try {
-        const response = await fetch('http://localhost:8081/v1/properties')
+        const response = await fetch('https://hotel-booking-service-rgs2.onrender.com/v1/properties')
         
         if (!response.ok) {
           throw new Error(`Failed to fetch properties: ${response.statusText}`)
