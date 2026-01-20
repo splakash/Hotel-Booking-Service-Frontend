@@ -65,7 +65,7 @@ export default function PropertyDetailsPage() {
       setLoading(true)
       try {
         const response = await fetch(
-          `http://localhost:8081/v1/property/${params.id}/details`
+          `https://hotel-booking-service-rgs2.onrender.com//v1/property/${params.id}/details`
         )
 
         if (!response.ok) {

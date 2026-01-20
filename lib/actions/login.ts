@@ -8,7 +8,7 @@ export async function loginAction(formData: FormData) {
   const password = formData.get("password")
   const role = formData.get("role")
 
-  const res = await fetch("http://localhost:8081/auth/login", {
+  const res = await fetch("https://hotel-booking-service-rgs2.onrender.com/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password, role }),
