@@ -6,7 +6,7 @@ import PriceBadge from './PriceBadge'
 interface PropertyCardProps {
   id: string
   name: string
-  location: string
+  address: string
   image: string
   lowestPrice: number
   rating?: number
@@ -15,7 +15,7 @@ interface PropertyCardProps {
 export default function PropertyCard({
   id,
   name,
-  location,
+  address,
   image,
   lowestPrice,
   rating = 0,
@@ -66,7 +66,7 @@ export default function PropertyCard({
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            {location}
+            {address}
           </p>
           <div className="flex justify-between items-center">
             <PriceBadge price={lowestPrice} />

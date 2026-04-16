@@ -1,142 +1,59 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import RoomTypeCard from '@/components/RoomTypeCard'
-import PriceBadge from '@/components/PriceBadge'
-
-interface RoomType {
-  id: string
-  name: string
-  description?: string | null
-  occupancy: {
-    adults: number
-    children: number
-  }
-  pricePerNight: number
-  available: boolean
-  totalRoom?: number | null
-}
-
-interface Property {
-  id: string
-  name: string
-  address: string
-  description: string
-  images: string[]
-  roomTypes: RoomType[]
-  lowestPrice: number
-  rating: number
-  contactEmail: string
-  contactPhone: string
-}
-
-interface ApiRoomType {
-  id: number
-  name: string
-  description: string | null
-  totalRoom: number | null
-  basePrice: number | null
-  occupancyAdults: number | null
-  occupancyChildren: number | null
-}
+"use client";
+import { useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useProperty } from "@/hooks/useProperty";
+import PriceBadge from "@/components/PriceBadge";
+import RoomTypeCard from "@/components/RoomTypeCard";
+import { RoomType, ApiRoomType } from "@/types/roomType";
+import { Property } from "@/types/property";
 
 interface ApiPropertyDetails {
-  propertyId: number
-  propertyName: string
-  address: string
-  contactEmail: string | null
-  contactPhone: string | null
-  lowestPrice: number
-  ratings: number
-  roomTypes: ApiRoomType[]
+  propertyId: number;
+  propertyName: string;
+  address: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  lowestPrice: number;
+  ratings: number;
+  roomTypes: ApiRoomType[];
 }
 
 export default function PropertyDetailsPage() {
-  const params = useParams()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [property, setProperty] = useState<Property | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { property, loading } = useProperty(params.id as string);
+  const [selectedImage, setSelectedImage] = useState(0);
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `https://hotel-booking-service-rgs2.onrender.com//v1/property/${params.id}/details`
-        )
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch property details: ${response.statusText}`)
-        }
-
-        const apiData: ApiPropertyDetails = await response.json()
-
-        // Map API response to Property interface
-        const mappedProperty: Property = {
-          id: apiData.propertyId.toString(),
-          name: apiData.propertyName,
-          address: apiData.address,
-          description:
-            apiData.roomTypes[0]?.description ||
-            'Experience luxury and comfort at our premier hotel. Located in a prime location, we offer world-class amenities, exceptional service, and stunning views. Perfect for both business and leisure travelers.',
-          images: [
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200',
-            'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200',
-            'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200',
-          ],
-          roomTypes: apiData.roomTypes.map((roomType) => ({
-            id: roomType.id.toString(),
-            name: roomType.name,
-            description: roomType.description,
-            occupancy: {
-              adults: roomType.occupancyAdults ?? 2, // Default to 2 if null
-              children: roomType.occupancyChildren ?? 0, // Default to 0 if null
-            },
-            pricePerNight: roomType.basePrice ?? apiData.lowestPrice, // Use basePrice or fallback to lowestPrice
-            available: roomType.totalRoom === null ? true : roomType.totalRoom > 0, // Available if totalRoom is null or > 0
-            totalRoom: roomType.totalRoom, // Keep totalRoom as is (0 if 0, null if null)
-          })),
-          lowestPrice: apiData.lowestPrice,
-          rating: apiData.ratings,
-          contactEmail: apiData.contactEmail || 'contact@hotel.com', // Hardcoded default if null
-          contactPhone: apiData.contactPhone || '+1 (555) 123-4567', // Hardcoded default if null
-        }
-
-        setProperty(mappedProperty)
-      } catch (error) {
-        console.error('Error fetching property:', error)
-      } finally {
-        setLoading(false)
-      }
+  const handleRoomSelect = (roomType: RoomType) => {
+    const token = localStorage.getItem("token"); // or wherever you store it
+    if (!token) {
+      router.push("/login");
+      return;
     }
-
-    if (params.id) {
-      fetchProperty()
-    }
-  }, [params.id])
-
+    handleSelectRoom(roomType);
+  };
   const handleSelectRoom = (roomType: RoomType) => {
-    const checkIn = searchParams.get('checkIn') || new Date().toISOString().split('T')[0]
-    const checkOut = searchParams.get('checkOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0]
-    const adults = searchParams.get('adults') || '2'
-    const children = searchParams.get('children') || '0'
-    const rooms = searchParams.get('rooms') || '1'
+    const checkIn =
+      searchParams.get("checkIn") || new Date().toISOString().split("T")[0];
+    const checkOut =
+      searchParams.get("checkOut") ||
+      new Date(Date.now() + 86400000).toISOString().split("T")[0];
+    const adults = searchParams.get("adults") || "2";
+    const children = searchParams.get("children") || "0";
+    const rooms = searchParams.get("rooms") || "1";
 
     router.push(
-      `/booking?propertyId=${params.id}&roomTypeId=${roomType.id}&checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}`
-    )
-  }
+      `/booking?propertyId=${params.id}&roomTypeId=${roomType.id}&checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}`,
+    );
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-gray-600">Loading property details...</div>
       </div>
-    )
+    );
   }
 
   if (!property) {
@@ -144,7 +61,7 @@ export default function PropertyDetailsPage() {
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-gray-600">Property not found</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -154,7 +71,9 @@ export default function PropertyDetailsPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{property.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                {property.propertyName}
+              </h1>
               <p className="text-gray-600 mb-2 flex items-center">
                 <svg
                   className="w-4 h-4 mr-1"
@@ -191,10 +110,12 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
           <p className="text-gray-700 mb-4">{property.description}</p>
-          
+
           {/* Contact Information */}
           <div className="border-t pt-4 mt-4">
-            <h3 className="font-semibold text-gray-800 mb-2">Contact Information</h3>
+            <h3 className="font-semibold text-gray-800 mb-2">
+              Contact Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
               <div className="flex items-center">
                 <svg
@@ -238,7 +159,7 @@ export default function PropertyDetailsPage() {
             <div className="md:col-span-2 md:row-span-2">
               <img
                 src={property.images[selectedImage] || property.images[0]}
-                alt={property.name}
+                alt={property.propertyName}
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
@@ -250,7 +171,7 @@ export default function PropertyDetailsPage() {
               >
                 <img
                   src={image}
-                  alt={`${property.name} ${index + 2}`}
+                  alt={`${property.propertyName} ${index + 2}`}
                   className="w-full h-32 object-cover rounded-lg hover:opacity-80 transition-opacity"
                 />
               </div>
@@ -260,14 +181,18 @@ export default function PropertyDetailsPage() {
 
         {/* Room Types */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Available Room Types</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Available Room Types
+          </h2>
           {property.roomTypes.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
-              <p className="text-gray-600">No room types available for this property.</p>
+              <p className="text-gray-600">
+                No room types available for this property.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {property.roomTypes.map((roomType) => (
+              {property.roomTypes.map((roomType: RoomType) => (
                 <RoomTypeCard
                   key={roomType.id}
                   id={roomType.id}
@@ -277,7 +202,7 @@ export default function PropertyDetailsPage() {
                   pricePerNight={roomType.pricePerNight}
                   available={roomType.available}
                   totalRoom={roomType.totalRoom}
-                  onSelect={() => handleSelectRoom(roomType)}
+                  onSelect={() => handleRoomSelect(roomType)}
                 />
               ))}
             </div>
@@ -289,33 +214,42 @@ export default function PropertyDetailsPage() {
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Policies</h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Check-in / Check-out</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">
+                Check-in / Check-out
+              </h3>
               <p className="text-gray-600">
                 Check-in: 3:00 PM | Check-out: 11:00 AM
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Cancellation Policy</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">
+                Cancellation Policy
+              </h3>
               <p className="text-gray-600">
-                Free cancellation up to 24 hours before check-in. Cancellations made less than 24 hours before check-in will be charged 50% of the total booking amount.
+                Free cancellation up to 24 hours before check-in. Cancellations
+                made less than 24 hours before check-in will be charged 50% of
+                the total booking amount.
               </p>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">Pet Policy</h3>
               <p className="text-gray-600">
-                Pets are welcome with an additional fee of $25 per night. Maximum 2 pets per room.
+                Pets are welcome with an additional fee of $25 per night.
+                Maximum 2 pets per room.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">Smoking Policy</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">
+                Smoking Policy
+              </h3>
               <p className="text-gray-600">
-                This is a non-smoking property. Smoking is not permitted in any area of the hotel.
+                This is a non-smoking property. Smoking is not permitted in any
+                area of the hotel.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

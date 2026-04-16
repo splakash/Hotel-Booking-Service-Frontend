@@ -1,209 +1,85 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import DatePicker from '@/components/DatePicker'
-import PropertyCard from '@/components/PropertyCard'
-import PropertyFilters from '@/components/PropertyFilters'
-import FeaturesSection from '@/components/FeaturesSection'
-
-interface Property {
-  id: string
-  name: string
-  location: string
-  image: string
-  lowestPrice: number
-  rating: number
-}
-
-interface ApiProperty {
-  id: number
-  name: string
-  address: string
-  lowestPrice: number
-  ratings: number
-}
-
-interface SearchApiProperty {
-  id: number
-  name: string
-  timezone: string
-  city: string
-  state: string
-  country: string
-  address: string
-  contactEmail: string
-  contactPhone: string
-  createdAt: string
-  updatedAt: string
-  inventories: any[]
-  reservations: any[]
-}
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import DatePicker from "@/components/DatePicker";
+import PropertyCard from "@/components/PropertyCard";
+import PropertyFilters from "@/components/PropertyFilters";
+import FeaturesSection from "@/components/FeaturesSection";
+import { useProperties } from "@/hooks/useProperties";
+import { usePropertyList } from "@/hooks/usePropertyList";
 
 export default function Home() {
-  const searchParams = useSearchParams()
-  const [location, setLocation] = useState('')
-  const [checkIn, setCheckIn] = useState('')
-  const [checkOut, setCheckOut] = useState('')
-  const [adults, setAdults] = useState(2)
-  const [children, setChildren] = useState(0)
-  const [rooms, setRooms] = useState(1)
-  const [properties, setProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams();
+
+  const [location, setLocation] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [rooms, setRooms] = useState(1);
+
   const [filters, setFilters] = useState({
-    minPrice: '',
-    maxPrice: '',
-    roomType: '',
-    rating: '',
-  })
-  // Extract individual URL param values as stable primitives
-  const urlLocation = searchParams?.get('location') || ''
-  const urlCheckIn = searchParams?.get('checkIn') || ''
-  const urlCheckOut = searchParams?.get('checkOut') || ''
-  const urlAdults = searchParams?.get('adults') || '2'
-  const urlChildren = searchParams?.get('children') || '0'
-  const urlRooms = searchParams?.get('rooms') || '1'
+    minPrice: "",
+    maxPrice: "",
+    roomType: "",
+    rating: "",
+  });
 
-  // Initialize from URL params when they change
+  const urlLocation = searchParams?.get("location") || "";
+  const urlCheckIn = searchParams?.get("checkIn") || "";
+  const urlCheckOut = searchParams?.get("checkOut") || "";
+  const urlAdults = searchParams?.get("adults") || "2";
+  const urlChildren = searchParams?.get("children") || "0";
+  const urlRooms = searchParams?.get("rooms") || "1";
+
   useEffect(() => {
-    setLocation(urlLocation)
-    setCheckIn(urlCheckIn)
-    setCheckOut(urlCheckOut)
-    setAdults(parseInt(urlAdults))
-    setChildren(parseInt(urlChildren))
-    setRooms(parseInt(urlRooms))
-  }, [urlLocation, urlCheckIn, urlCheckOut, urlAdults, urlChildren, urlRooms])
+    setLocation(urlLocation);
+    setCheckIn(urlCheckIn);
+    setCheckOut(urlCheckOut);
+    setAdults(parseInt(urlAdults));
+    setChildren(parseInt(urlChildren));
+    setRooms(parseInt(urlRooms));
+  }, [urlLocation, urlCheckIn, urlCheckOut, urlAdults, urlChildren, urlRooms]);
 
-  // Fetch properties from POST API when search is applied
-  const searchProperties = async () => {
-    if (!checkIn || !checkOut || !location) {
-      return // Don't search if required fields are missing
-    }
-
-    setLoading(true)
-    try {
-      const response = await fetch('https://hotel-booking-service-rgs2.onrender.com/v1/search-details', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          checkIn: checkIn,
-          checkOut: checkOut,
-          location: location,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to search properties: ${response.statusText}`)
-      }
-
-      const searchProperties: SearchApiProperty[] = await response.json()
-
-      // Map search API response to Property interface
-      // Note: Search API doesn't return lowestPrice or ratings, so we use defaults
-      const mappedProperties: Property[] = searchProperties.map((apiProp) => ({
-        id: apiProp.id.toString(),
-        name: apiProp.name,
-        location: apiProp.address,
-        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', // Hardcoded image URL
-        lowestPrice: 0, // Search API doesn't provide price
-        rating: 0, // Search API doesn't provide rating
-      }))
-
-      setProperties(mappedProperties)
-    } catch (error) {
-      console.error('Error searching properties:', error)
-      setProperties([])
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Fetch properties from GET API on initial load (if no search params)
-  useEffect(() => {
-    const fetchProperties = async () => {
-      // If search parameters are present, use search API instead
-      if (checkIn && checkOut && location) {
-        await searchProperties()
-        return
-      }
-
-      setLoading(true)
-      try {
-        const response = await fetch('https://hotel-booking-service-rgs2.onrender.com/v1/properties')
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch properties: ${response.statusText}`)
-        }
-
-        const apiProperties: ApiProperty[] = await response.json()
-
-        // Map API response to Property interface with hardcoded image URLs
-        const mappedProperties: Property[] = apiProperties.map((apiProp) => ({
-          id: apiProp.id.toString(),
-          name: apiProp.name,
-          location: apiProp.address,
-          image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', // Hardcoded image URL
-          lowestPrice: apiProp.lowestPrice,
-          rating: apiProp.ratings,
-        }))
-
-        setProperties(mappedProperties)
-      } catch (error) {
-        console.error('Error fetching properties: from home page', error)
-        // Set empty array on error to show empty state
-        setProperties([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProperties()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Only run on mount
-
-  // Trigger search API if URL params are present after initialization
-  useEffect(() => {
-    if (checkIn && checkOut && location) {
-      searchProperties()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlLocation, urlCheckIn, urlCheckOut]) // Trigger when URL params change
+  const { properties, loading, searchProperties } = usePropertyList(
+    checkIn,
+    checkOut,
+    location,
+    [urlLocation, urlCheckIn, urlCheckOut],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Update URL without navigation
+    e.preventDefault();
+
     const params = new URLSearchParams({
-      location: location || 'anywhere',
-      checkIn: checkIn || new Date().toISOString().split('T')[0],
-      checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      location: location || "anywhere",
+      checkIn: checkIn || new Date().toISOString().split("T")[0],
+      checkOut:
+        checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0],
       adults: adults.toString(),
       children: children.toString(),
       rooms: rooms.toString(),
-    })
-    window.history.pushState({}, '', `/?${params.toString()}`)
-    
-    // Call search API if all required fields are present
+    });
+
+    window.history.pushState({}, "", `/?${params.toString()}`);
+
     if (checkIn && checkOut && location) {
-      await searchProperties()
+      await searchProperties();
     }
-  }
+  };
 
   const filteredProperties = properties.filter((property) => {
-    if (filters.minPrice && property.lowestPrice < parseInt(filters.minPrice)) {
-      return false
-    }
-    if (filters.maxPrice && property.lowestPrice > parseInt(filters.maxPrice)) {
-      return false
-    }
-    if (filters.rating && property.rating < parseFloat(filters.rating)) {
-      return false
-    }
-    return true
-  })
+    if (filters.minPrice && property.lowestPrice < parseInt(filters.minPrice))
+      return false;
+    if (filters.maxPrice && property.lowestPrice > parseInt(filters.maxPrice))
+      return false;
+    if (filters.rating && property.rating < parseFloat(filters.rating))
+      return false;
+    return true;
+  });
 
+  // ✅ UI BELOW REMAINS EXACT SAME
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -354,5 +230,5 @@ export default function Home() {
       {/* Features Section */}
       <FeaturesSection />
     </div>
-  )
+  );
 }

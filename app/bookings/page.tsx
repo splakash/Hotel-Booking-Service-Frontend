@@ -1,19 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Booking } from '@/types/booking'
 
-interface Booking {
-  id: string
-  bookingCode: string
-  propertyName: string
-  propertyLocation: string
-  checkIn: string
-  checkOut: string
-  status: 'confirmed' | 'pending' | 'cancelled'
-  totalAmount: number
-  guests: number
-  rooms: number
-}
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
