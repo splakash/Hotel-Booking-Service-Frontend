@@ -2,15 +2,8 @@
 
 import Link from 'next/link'
 import PriceBadge from './PriceBadge'
+import { PropertyCardProps } from '@/types/property'
 
-interface PropertyCardProps {
-  id: string
-  name: string
-  address: string
-  image: string
-  lowestPrice: number
-  rating?: number
-}
 
 export default function PropertyCard({
   id,

@@ -1,92 +1,89 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Booking } from '@/types/booking'
-
+import { useEffect, useState } from "react";
+import { Booking } from "@/types/booking";
+import { useAuth } from "@/authContext";
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [loading, setLoading] = useState(true)
-
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   useEffect(() => {
     const fetchBookings = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch('/api/v1/reservations')
-        // const data = await response.json()
-
+        
         // Mock data
         const mockBookings: Booking[] = [
           {
-            id: '1',
-            bookingCode: 'BK-2024-001',
-            propertyName: 'Grand Hotel Downtown',
-            propertyLocation: 'New York, NY',
-            checkIn: '2024-06-15',
-            checkOut: '2024-06-18',
-            status: 'confirmed',
-            totalAmount: 835.20,
+            id: "1",
+            bookingCode: "BK-2024-001",
+            propertyName: "Grand Hotel Downtown",
+            propertyLocation: "New York, NY",
+            checkIn: "2024-06-15",
+            checkOut: "2024-06-18",
+            status: "confirmed",
+            totalAmount: 835.2,
             guests: 2,
             rooms: 1,
           },
           {
-            id: '2',
-            bookingCode: 'BK-2024-002',
-            propertyName: 'Beachside Resort',
-            propertyLocation: 'Miami, FL',
-            checkIn: '2024-07-01',
-            checkOut: '2024-07-05',
-            status: 'pending',
-            totalAmount: 1339.20,
+            id: "2",
+            bookingCode: "BK-2024-002",
+            propertyName: "Beachside Resort",
+            propertyLocation: "Miami, FL",
+            checkIn: "2024-07-01",
+            checkOut: "2024-07-05",
+            status: "pending",
+            totalAmount: 1339.2,
             guests: 2,
             rooms: 1,
           },
           {
-            id: '3',
-            bookingCode: 'BK-2024-003',
-            propertyName: 'Mountain View Lodge',
-            propertyLocation: 'Aspen, CO',
-            checkIn: '2024-05-10',
-            checkOut: '2024-05-12',
-            status: 'cancelled',
+            id: "3",
+            bookingCode: "BK-2024-003",
+            propertyName: "Mountain View Lodge",
+            propertyLocation: "Aspen, CO",
+            checkIn: "2024-05-10",
+            checkOut: "2024-05-12",
+            status: "cancelled",
             totalAmount: 557.76,
             guests: 2,
             rooms: 1,
           },
-        ]
+        ];
 
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        setBookings(mockBookings)
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setBookings(mockBookings);
       } catch (error) {
-        console.error('Error fetching bookings:', error)
+        console.error("Error fetching bookings:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBookings()
-  }, [])
+    fetchBookings();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800'
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-gray-600">Loading your bookings...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -129,7 +126,7 @@ export default function BookingsPage() {
                       </h3>
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          booking.status
+                          booking.status,
                         )}`}
                       >
                         {booking.status.charAt(0).toUpperCase() +
@@ -163,11 +160,11 @@ export default function BookingsPage() {
                         <strong>Booking Code:</strong> {booking.bookingCode}
                       </span>
                       <span>
-                        <strong>Check-in:</strong>{' '}
+                        <strong>Check-in:</strong>{" "}
                         {new Date(booking.checkIn).toLocaleDateString()}
                       </span>
                       <span>
-                        <strong>Check-out:</strong>{' '}
+                        <strong>Check-out:</strong>{" "}
                         {new Date(booking.checkOut).toLocaleDateString()}
                       </span>
                       <span>
@@ -193,6 +190,5 @@ export default function BookingsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
-

@@ -46,3 +46,13 @@ export interface SearchApiProperty {
   inventories: any[]
   reservations: any[]
 }
+
+
+export interface PropertyCardProps {
+  id: string
+  name: string
+  address: string
+  image: string
+  lowestPrice: number
+  rating?: number
+}

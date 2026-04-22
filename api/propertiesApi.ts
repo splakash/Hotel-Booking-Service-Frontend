@@ -1,9 +1,11 @@
 import { ApiProperty, SearchApiProperty, Property } from "@/types/property"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 
 export const fetchProperty = async (id: string) : Promise<Property> => {
   const response = await fetch(
-    `http://localhost:8081/v1/property/${id}/details`
+    `${API_URL}/v1/property/${id}/details`
   )
    if (!response.ok) {
     throw new Error(`Failed to fetch properties: ${response.statusText}`)
@@ -14,7 +16,7 @@ export const fetchProperty = async (id: string) : Promise<Property> => {
 
 export const fetchAllProperties = async (): Promise<ApiProperty[]> => {
   const response = await fetch(
-    "http://localhost:8081/v1/properties"
+    `${API_URL}/v1/properties`
   )
 
   if (!response.ok) {
@@ -30,7 +32,7 @@ export const searchPropertiesApi = async (
   location: string
 ): Promise<SearchApiProperty[]> => {
   const response = await fetch(
-    "http://localhost:8081/v1/search-details",
+    `${API_URL}/v1/search-details`,
     {
       method: "POST",
       headers: {
@@ -43,6 +45,6 @@ export const searchPropertiesApi = async (
   if (!response.ok) {
     throw new Error(`Failed to search properties: ${response.statusText}`)
   }
-  console.log(response);
+  
   return response.json()
 }

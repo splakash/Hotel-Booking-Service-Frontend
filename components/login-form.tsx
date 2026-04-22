@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { loginAction } from "@/lib/actions/login";
 import Link from "next/link";
+import { useAuth } from "@/authContext";
 
 export default function LoginForm({
   className,
@@ -21,6 +22,7 @@ export default function LoginForm({
 }: React.ComponentProps<"div">) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { checkAuth } = useAuth();
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -37,6 +39,7 @@ export default function LoginForm({
               setError("");
               try {
                 await loginAction(formData);
+                await checkAuth();
               } catch (err: any) {
                 setError("Invalid username or password");
                 setLoading(false);

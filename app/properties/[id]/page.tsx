@@ -6,7 +6,7 @@ import PriceBadge from "@/components/PriceBadge";
 import RoomTypeCard from "@/components/RoomTypeCard";
 import { RoomType, ApiRoomType } from "@/types/roomType";
 import { Property } from "@/types/property";
-
+import { useAuth } from "@/authContext";
 interface ApiPropertyDetails {
   propertyId: number;
   propertyName: string;
@@ -24,10 +24,10 @@ export default function PropertyDetailsPage() {
   const searchParams = useSearchParams();
   const { property, loading } = useProperty(params.id as string);
   const [selectedImage, setSelectedImage] = useState(0);
-
+  const { isLoggedIn } = useAuth();
   const handleRoomSelect = (roomType: RoomType) => {
-    const token = localStorage.getItem("token"); // or wherever you store it
-    if (!token) {
+    // or wherever you store it
+    if (!isLoggedIn) {
       router.push("/login");
       return;
     }

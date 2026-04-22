@@ -1,10 +1,12 @@
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const loginApi = async (
   username: FormDataEntryValue | null ,
   password: FormDataEntryValue | null ,
   role: FormDataEntryValue | null
 ) => {
   const response = await fetch(
-    "http://localhost:8081/auth/login",
+    `${API_URL}/auth/login`,
     {
       method: "POST",
       headers: {
@@ -17,10 +19,29 @@ export const loginApi = async (
   if (!response.ok) {
     throw new Error(`Failed to log-in: ${response.statusText}`)
   }
-
+  
   return response.json()
 }
 
+export const getUser = async (token: string) => {
+  const response = await fetch(`${API_URL}/auth/extract-userName`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("getUser failed — status:", response.status, "body:", errorBody);
+
+    // ✅ Attach status to the error so callers can distinguish 401 vs 500
+    const error: any = new Error(`Token validation failed: ${response.statusText}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+};
 
 export const signupApi = async (
   username: FormDataEntryValue ,
@@ -28,7 +49,7 @@ export const signupApi = async (
   role: String
 ) => {
   const response = await fetch(
-    "http://localhost:8081/auth/create-user",
+    `${API_URL}/auth/create-user`,
     {
       method: "POST",
       headers: {
@@ -45,4 +66,8 @@ export const signupApi = async (
   return response.json()
 }
 
+
+function checkAuth() {
+  throw new Error("Function not implemented.");
+}
 

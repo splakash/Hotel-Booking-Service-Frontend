@@ -1,11 +1,12 @@
-import Link from "next/link"
-import { cookies } from "next/headers"
-import MobileMenu from "./MobileMenu"
-import { logout } from "@/lib/actions/logout"
-
+"use client";
+import Link from "next/link";
+import { cookies } from "next/headers";
+import MobileMenu from "./MobileMenu";
+import { logout } from "@/lib/actions/logout";
+import { useAuth } from "@/authContext";
 export default function Navbar() {
-  const token = cookies().get("token")
-
+  const { isLoggedIn } = useAuth();
+  
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,20 +23,32 @@ export default function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-primary-600">
               Home
             </Link>
-            {!token ? (<Link href="/login" className="text-gray-700 hover:text-primary-600">
-              My Bookings
-            </Link>):
-            <Link href="/bookings" className="text-gray-700 hover:text-primary-600">
-              My Bookings
-            </Link>}
-            <Link href="/error_page" className="text-gray-700 hover:text-primary-600">
+            {!isLoggedIn ? (
+              <Link
+                href="/login"
+                className="text-gray-700 hover:text-primary-600"
+              >
+                My Bookings
+              </Link>
+            ) : (
+              <Link
+                href="/bookings"
+                className="text-gray-700 hover:text-primary-600"
+              >
+                My Bookings
+              </Link>
+            )}
+            <Link
+              href="/error_page"
+              className="text-gray-700 hover:text-primary-600"
+            >
               Admin
             </Link>
             <Link href="/docs" className="text-gray-700 hover:text-primary-600">
               Docs
             </Link>
 
-            {!token ? (
+            {!isLoggedIn ? (
               <Link
                 href="/login"
                 className="bg-primary-600 text-white px-4 py-2 rounded-lg rounded"
@@ -55,9 +68,9 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu */}
-          <MobileMenu isLoggedIn={!!token} />
+          <MobileMenu isLoggedIn={isLoggedIn} />
         </div>
       </div>
     </nav>
-  )
+  );
 }
