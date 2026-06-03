@@ -11,6 +11,8 @@ export default function BookingDetailsPage() {
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [isCancel, setCancel] = useState(true);
+  const discount = 0;
+  const tax = 0;
   function updateCancelOption(status: string, checkinTime: string) {
     if (status === "PENDING PAYMENT") setCancel(false);
   }
@@ -136,12 +138,12 @@ export default function BookingDetailsPage() {
 
                 <div className="flex justify-between mb-2">
                   <span>Tax</span>
-                  <span>₹{booking.tax}</span>
+                  <span>₹{tax}</span>
                 </div>
 
                 <div className="flex justify-between mb-2 text-green-600">
                   <span>Discount</span>
-                  <span>- ₹{booking.discount}</span>
+                  <span>- ₹{discount}</span>
                 </div>
 
                 <hr className="my-3" />
