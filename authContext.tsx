@@ -1,70 +1,107 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type User = {
-  userName: string;
+  username: string;
+  role: string;
 };
 
 type AuthContextType = {
-  isLoggedIn: boolean;
   user: User | null;
+  isLoggedIn: boolean;
   isLoading: boolean;
-  checkAuth: () => Promise<void>; // ✅ expose this so login page can trigger a re-check
+
+  setAuthUser: (user: User | null) => void;
+
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  isLoggedIn: false,
-  user: null,
-  isLoading: true,
-  checkAuth: async () => {},
-  logout: () => {},
-});
+const AuthContext =
+  createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); 
-  // ✅ prevent flash of "logged out" state
+export function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [user, setUser] =
+    useState<User | null>(null);
 
-  const checkAuth = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/auth");
-      const data = await res.json();
-
-      if (data.ok && data.user) {
-        setIsLoggedIn(true);
-        setUser(data.user);
-      } else {
-        setIsLoggedIn(false);
-        setUser(null);
-      }
-    } catch {
-      setIsLoggedIn(false);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(() => {
-    // Clear cookie and reset state
-    document.cookie = "token=; Max-Age=0; path=/";
-    setIsLoggedIn(false);
-    setUser(null);
-  }, []);
+  const [isLoading, setIsLoading] =
+    useState(true);
 
   useEffect(() => {
-    checkAuth(); // run once on mount
-  }, [checkAuth]);
+    const restoreSession = async () => {
+
+      try {
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!response.ok) {
+          setUser(null);
+          return;
+        }
+
+        const user = await response.json();
+
+        setUser(user);
+
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, []);
+
+  const setAuthUser = (
+    user: User | null
+  ) => {
+    setUser(user);
+  };
+
+  const logout = () => {
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, isLoading, checkAuth, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoggedIn: !!user,
+        isLoading,
+
+        setAuthUser,
+
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error(
+      "useAuth must be used inside AuthProvider"
+    );
+  }
+
+  return context;
+}

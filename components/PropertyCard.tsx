@@ -1,9 +1,8 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import PriceBadge from './PriceBadge'
-import { PropertyCardProps } from '@/types/property'
-
+import Link from "next/link";
+import PriceBadge from "./PriceBadge";
+import { PropertyCardProps } from "@/types/property";
 
 export default function PropertyCard({
   id,
@@ -19,12 +18,13 @@ export default function PropertyCard({
         {/* Image */}
         <div className="relative h-48 bg-gray-200">
           <img
-            src={image || '/placeholder-hotel.jpg'}
+            src={image || "/placeholder-hotel.jpg"}
             alt={name}
             className="w-full h-full object-cover"
             onError={(e) => {
               // Fallback to placeholder if image fails to load
-              ;(e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Hotel'
+              (e.target as HTMLImageElement).src =
+                "https://via.placeholder.com/400x300?text=Hotel";
             }}
           />
           {rating > 0 && (
@@ -70,6 +70,5 @@ export default function PropertyCard({
         </div>
       </div>
     </Link>
-  )
+  );
 }
-

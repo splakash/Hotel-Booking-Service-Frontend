@@ -1,70 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Booking } from "@/types/booking";
+import { Bookings } from "@/types/booking";
 import { useAuth } from "@/authContext";
+import { BookingDetailsPerCustomer } from "@/api/bookingAPI";
+import { Router } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<Bookings[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const router = useRouter();
   useEffect(() => {
-    const fetchBookings = async () => {
-      setLoading(true);
+    const fetchData = async () => {
       try {
-        
-        // Mock data
-        const mockBookings: Booking[] = [
-          {
-            id: "1",
-            bookingCode: "BK-2024-001",
-            propertyName: "Grand Hotel Downtown",
-            propertyLocation: "New York, NY",
-            checkIn: "2024-06-15",
-            checkOut: "2024-06-18",
-            status: "confirmed",
-            totalAmount: 835.2,
-            guests: 2,
-            rooms: 1,
-          },
-          {
-            id: "2",
-            bookingCode: "BK-2024-002",
-            propertyName: "Beachside Resort",
-            propertyLocation: "Miami, FL",
-            checkIn: "2024-07-01",
-            checkOut: "2024-07-05",
-            status: "pending",
-            totalAmount: 1339.2,
-            guests: 2,
-            rooms: 1,
-          },
-          {
-            id: "3",
-            bookingCode: "BK-2024-003",
-            propertyName: "Mountain View Lodge",
-            propertyLocation: "Aspen, CO",
-            checkIn: "2024-05-10",
-            checkOut: "2024-05-12",
-            status: "cancelled",
-            totalAmount: 557.76,
-            guests: 2,
-            rooms: 1,
-          },
-        ];
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setBookings(mockBookings);
+        const data = await BookingDetailsPerCustomer();
+        setBookings(data);
       } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.log(error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBookings();
+    fetchData();
   }, []);
 
+  const redirectToBookingDetails = (code: string) => {
+    router.push(`/BookingsDetailsPage?BookingCode=${code}`);
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -115,7 +80,7 @@ export default function BookingsPage() {
           <div className="space-y-4">
             {bookings.map((booking) => (
               <div
-                key={booking.id}
+                key={booking.code}
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
               >
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -153,11 +118,15 @@ export default function BookingsPage() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      {booking.propertyLocation}
+                      {booking.city +
+                        ", " +
+                        booking.state +
+                        ", " +
+                        booking.country}
                     </p>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       <span>
-                        <strong>Booking Code:</strong> {booking.bookingCode}
+                        <strong>Booking Code:</strong> {booking.code}
                       </span>
                       <span>
                         <strong>Check-in:</strong>{" "}
@@ -168,18 +137,21 @@ export default function BookingsPage() {
                         {new Date(booking.checkOut).toLocaleDateString()}
                       </span>
                       <span>
-                        <strong>Guests:</strong> {booking.guests}
+                        <strong>Guests:</strong> {booking.guestAdult}
                       </span>
-                      <span>
+                      {/* <span>
                         <strong>Rooms:</strong> {booking.rooms}
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
                     <div className="text-2xl font-bold text-primary-600 mb-2">
                       ${booking.totalAmount.toLocaleString()}
                     </div>
-                    <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
+                    <button
+                      onClick={() => redirectToBookingDetails(booking.code)}
+                      className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                    >
                       View Details
                     </button>
                   </div>

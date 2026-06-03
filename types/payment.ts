@@ -1,3 +1,5 @@
+import { Bookings } from "./booking";
+
 export interface PaymentMethod {
   id: PaymentMethodId;
   label: string;
@@ -16,26 +18,12 @@ export interface PaymentMethodCardProps {
 }
 
 export interface BookingSummaryCardProps {
-  booking: BookingSummary;
+  booking: Bookings;
 }
 
 export interface SuccessScreenProps {
-  booking: BookingSummary;
+  booking: Bookings;
   paymentMethod: PaymentMethodId;
 }
 
 
- export interface BookingSummary {
-  hotelName: string;
-  roomType: string;
-  checkIn: string;
-  checkOut: string;
-  nights: number;
-  guests: number;
-  roomRate: number;
-  taxes: number;
-  total: number;
-  bookingRef: string;
-  guestName: string;
-  guestEmail: string;
-}

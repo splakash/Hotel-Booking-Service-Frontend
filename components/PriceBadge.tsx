@@ -1,16 +1,24 @@
 interface PriceBadgeProps {
-  price: number
-  period?: string
+  price: number;
+  period?: string;
 }
 
-export default function PriceBadge({ price, period = 'night' }: PriceBadgeProps) {
+export default function PriceBadge({
+  price,
+  period = "night",
+}: PriceBadgeProps) {
   return (
     <div className="flex flex-col">
-      <span className="text-2xl font-bold text-primary-600">
-      ₹{price.toLocaleString()}
-      </span>
-      <span className="text-sm text-gray-500">per {period}</span>
+      {price === 0 ? (
+        <span className="text-2xl font-bold text-gray-400">Sold Out</span>
+      ) : (
+        <>
+          <span className="text-2xl font-bold text-primary-600">
+            ₹{price?.toLocaleString() ?? ""}
+          </span>
+          <span className="text-sm text-gray-500">per {period}</span>
+        </>
+      )}
     </div>
-  )
+  );
 }
-

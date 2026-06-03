@@ -7,16 +7,6 @@ import RoomTypeCard from "@/components/RoomTypeCard";
 import { RoomType, ApiRoomType } from "@/types/roomType";
 import { Property } from "@/types/property";
 import { useAuth } from "@/authContext";
-interface ApiPropertyDetails {
-  propertyId: number;
-  propertyName: string;
-  address: string;
-  contactEmail: string | null;
-  contactPhone: string | null;
-  lowestPrice: number;
-  ratings: number;
-  roomTypes: ApiRoomType[];
-}
 
 export default function PropertyDetailsPage() {
   const params = useParams();
@@ -25,6 +15,7 @@ export default function PropertyDetailsPage() {
   const { property, loading } = useProperty(params.id as string);
   const [selectedImage, setSelectedImage] = useState(0);
   const { isLoggedIn } = useAuth();
+ 
   const handleRoomSelect = (roomType: RoomType) => {
     // or wherever you store it
     if (!isLoggedIn) {

@@ -12,18 +12,18 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { loginAction } from "@/lib/actions/login";
 import Link from "next/link";
 import { useAuth } from "@/authContext";
-
+import { useRouter } from "next/navigation";
+import { loginApi } from "@/api/authApis";
 export default function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { checkAuth } = useAuth();
-
+  const { setAuthUser } = useAuth();
+  const router = useRouter();
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -34,14 +34,29 @@ export default function LoginForm({
 
         <CardContent>
           <form
-            action={async (formData) => {
+            onSubmit={async (e) => {
+              e.preventDefault();
+
               setLoading(true);
               setError("");
+
               try {
-                await loginAction(formData);
-                await checkAuth();
-              } catch (err: any) {
+                const formData = new FormData(e.currentTarget);
+
+                const data = await loginApi(
+                  formData.get("username"),
+                  formData.get("password"),
+                  formData.get("role"),
+                );
+
+                setAuthUser({
+                  username: data.username,
+                  role: data.role,
+                });
+                router.push("/");
+              } catch (err) {
                 setError("Invalid username or password");
+              } finally {
                 setLoading(false);
               }
             }}

@@ -1,30 +1,32 @@
-import { getUser } from "@/api/authApis";
+
 import { cookies } from "next/headers";
+import { getUser } from "@/api/authApis";
 
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const jwtCookie = cookieStore.get("jwt"); 
+    
 
-    if (!token) {
+    if (!jwtCookie) {
       return Response.json({ ok: false, user: null });
     }
 
-    const user = await getUser(token);
+    // Build the Cookie header string to forward to Spring Boot
+    const cookieHeader = `jwt=${jwtCookie.value}`;
+    const user = await getUser(cookieHeader);
 
-    if (!user || !user.userName) {
+    if (!user || !user.username) {
       return Response.json({ ok: false, user: null });
     }
 
     return Response.json({ ok: true, user });
 
   } catch (error: any) {
-    // ✅ 401 means expired/invalid token — treat as logged out, not a crash
     if (error.status === 401) {
       return Response.json({ ok: false, user: null });
     }
-
-    console.error("Auth check failed:", error);
+    console.error("Auth check error:", error);
     return Response.json({ ok: false, user: null });
   }
 }

@@ -3,7 +3,7 @@ import { RoomType } from "./roomType"
 export interface Property {
   propertyId: any
   propertyName: string
-  address: string
+  address:string
   description: string
   images: string[]
   roomTypes: RoomType[]

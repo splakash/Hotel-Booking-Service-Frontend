@@ -8,7 +8,8 @@ import PropertyFilters from "@/components/PropertyFilters";
 import FeaturesSection from "@/components/FeaturesSection";
 import { useProperties } from "@/hooks/useProperties";
 import { usePropertyList } from "@/hooks/usePropertyList";
-
+import Chatbot from "@/components/chatbot";
+import { useAuth } from "@/authContext";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -19,7 +20,8 @@ export default function Home() {
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [rooms, setRooms] = useState(1);
-  
+ 
+
 
   const [filters, setFilters] = useState({
     minPrice: "",
@@ -231,6 +233,7 @@ export default function Home() {
 
       {/* Features Section */}
       <FeaturesSection />
+      <Chatbot />
     </div>
   );
 }

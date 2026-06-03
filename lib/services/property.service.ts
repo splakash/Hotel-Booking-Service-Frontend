@@ -11,7 +11,7 @@ export const getPropertyDetails = async (id: string):  Promise<Property> => {
   return {
     propertyId: apiData.propertyId.toString(),
     propertyName: apiData.propertyName,
-    address: apiData.address,
+    address:apiData.address,
     description:
       apiData.roomTypes[0]?.description ||
       "Default description",

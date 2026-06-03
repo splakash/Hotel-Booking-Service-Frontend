@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import BookingSummary from "@/components/BookingSummary";
-
+import { useAuth } from "@/authContext";
+import { getPropertyDetails } from "@/lib/services/property.service";
+import { BookingPayload } from "@/types/booking";
+import { saveBookingInfo } from "@/api/bookingAPI";
 interface Property {
   id: string;
   name: string;
@@ -23,9 +26,10 @@ export default function BookingPage() {
   const [roomType, setRoomType] = useState<RoomType | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    email: user?.username || "",
     phone: "",
   });
 
@@ -45,25 +49,31 @@ export default function BookingPage() {
       setLoading(true);
       try {
         // TODO: Replace with actual API calls
-        // const propertyResponse = await fetch(`/api/v1/properties/${propertyId}`)
-        // const roomTypeResponse = await fetch(`/api/v1/room-types/${roomTypeId}`)
 
-        // Mock data
-        const mockProperty: Property = {
-          id: propertyId || "1",
-          name: "Grand Hotel Downtown",
-          location: "New York, NY",
-        };
+        const propertyResponse = await getPropertyDetails(propertyId ?? "");
 
-        const mockRoomType: RoomType = {
-          id: roomTypeId || "1",
-          name: "Standard Room",
-          pricePerNight: 199,
+        const Property: Property = {
+          id: propertyResponse.propertyId || "0",
+          name: propertyResponse.propertyName,
+          location: propertyResponse.address,
         };
+        const RoomType: RoomType = {
+          id: "",
+          name: "",
+          pricePerNight: 0,
+        };
+        for (let i = 0; i < propertyResponse.roomTypes.length; i++) {
+          if (propertyResponse.roomTypes[i].id == roomTypeId) {
+            ((RoomType.id = roomTypeId),
+              (RoomType.name = propertyResponse.roomTypes[i].name),
+              (RoomType.pricePerNight =
+                propertyResponse.roomTypes[i].pricePerNight));
+          }
+        }
 
         await new Promise((resolve) => setTimeout(resolve, 500));
-        setProperty(mockProperty);
-        setRoomType(mockRoomType);
+        setProperty(Property);
+        setRoomType(RoomType);
       } catch (error) {
         console.error("Error fetching booking data:", error);
       } finally {
@@ -86,35 +96,32 @@ export default function BookingPage() {
 
   const basePrice = roomType ? roomType.pricePerNight * nights * rooms : 0;
   const taxes = basePrice * 0.12; // 12% tax
-  const total = basePrice + taxes;
-  // const router = useRouter();
+  const total_price = basePrice + taxes;
 
-  // const handleProceedToPayment = () => {
-  //   setSubmitting(true);
-  //   router.push({
-  //     pathname: "/payment",
-  //     query: {
-  //       hotelName: "Taj Hotel",
-  //       price: 5000,
-  //       checkIn: "2026-05-01",
-  //       checkOut: "2026-05-03",
-  //       guests: 2,
-  //     },
-  //   });
-  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const payload: BookingPayload = {
+        propertyId: propertyId || "",
+        roomTypeId: roomTypeId || "",
+        checkIn: new Date(checkIn),
+        checkOut: new Date(checkOut),
+        guestAdult: adults || 2,
+        guestChildren: children || 0,
+        noOfRooms: rooms,
+        contactName: formData.name,
+        contactEmail: formData.email,
+        contactPhone: Number(formData.phone),
+        totalAmount: basePrice,
+      };
 
-      // Simulate success
-      alert("Booking confirmed! Redirecting to your bookings...");
-      router.push("/payment");
+      const bookingId = await saveBookingInfo(payload);
+      router.push(`/payment?bookingId=${bookingId}`);
     } catch (error) {
-      console.error("Error creating booking:", error);
-      alert("Failed to create booking. Please try again.");
+      console.error(error);
+      alert("Failed to create booking");
     } finally {
       setSubmitting(false);
     }
@@ -175,6 +182,7 @@ export default function BookingPage() {
                     type="email"
                     required
                     value={formData.email}
+                    readOnly
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
@@ -236,17 +244,23 @@ export default function BookingPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <BookingSummary
-                propertyName={property.name}
-                propertyLocation={property.location}
-                roomType={roomType.name}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                adults={adults}
-                children={children}
-                rooms={rooms}
-                basePrice={basePrice}
-                taxes={taxes}
-                total={total}
+                code="abc"
+                propertyName={property.name}
+                city={property.location}
+                state={property.location}
+                country={property.location}
+                guestAdult={adults}
+                guestChildren={children}
+                status="cancelled"
+                roomTypeName={roomType.name}
+                // rooms={rooms}
+                totalAmount={basePrice}
+                contactEmail="abc"
+                contactName="abc"
+                contactPhone="abc"
+                updatedAt={checkOutDate}
               />
             </div>
           </div>
