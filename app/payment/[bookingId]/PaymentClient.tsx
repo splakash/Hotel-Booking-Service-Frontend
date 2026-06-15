@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { BookingSummaryCardProps, PaymentMethodId } from "@/types/payment";
+import { useRouter } from "next/navigation";
+import { PaymentMethodId } from "@/types/payment";
 import {
   InfoIcon,
   CheckIcon,
@@ -15,25 +15,20 @@ import {
   fetchBookingDetails,
   confirmPayAtHotelBooking,
 } from "@/api/bookingAPI";
-import { error } from "console";
 import {
   PaymentMethodCard,
   SuccessScreen,
   BookingSummaryCard,
 } from "@/components/paymentComponent/paymentMethodCard";
 
-// ─────────────────────────────────────────────
-// PAYMENT METHOD
-// ─────────────────────────────────────────────
+type PaymentClientProps = {
+  bookingId: string;
+};
 
-// ─────────────────────────────────────────────
-// MAIN PAGE
-// ─────────────────────────────────────────────
-
-export default function PaymentPage(): React.ReactElement {
-  const searchParams = useSearchParams();
+export default function PaymentClient({
+  bookingId,
+}: PaymentClientProps): React.ReactElement {
   const router = useRouter();
-  const bookingId = searchParams.get("bookingId") || "abcdef";
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] =
@@ -53,7 +48,7 @@ export default function PaymentPage(): React.ReactElement {
       }
     };
     fetchData();
-  }, []);
+  }, [bookingId]);
 
   const handleConfirm = async (): Promise<void> => {
     if (!agreed) return;
@@ -81,7 +76,6 @@ export default function PaymentPage(): React.ReactElement {
 
   return (
     <div className="min-h-screen bg-[#F5F0EA] font-sans">
-      {/* ── Header ── */}
       <header className="bg-[#1C1C1E] text-white px-4 py-4 flex items-center justify-between sticky top-0 z-50 shadow-lg">
         <div className="flex items-center gap-3">
           <button
@@ -101,7 +95,6 @@ export default function PaymentPage(): React.ReactElement {
         </div>
       </header>
 
-      {/* ── Progress bar ── */}
       <div className="bg-[#1C1C1E] px-4 pb-4">
         <div className="max-w-4xl mx-auto flex items-center gap-2 text-xs">
           {(["Room Selection", "Guest Details", "Payment"] as const).map(
@@ -131,9 +124,7 @@ export default function PaymentPage(): React.ReactElement {
         </div>
       </div>
 
-      {/* ── Main grid ── */}
       <main className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left: payment methods */}
         <section className="lg:col-span-3 space-y-4">
           <div>
             <h1 className="text-2xl font-bold text-[#1C1C1E] tracking-tight">
@@ -158,7 +149,6 @@ export default function PaymentPage(): React.ReactElement {
             ))}
           </div>
 
-          {/* Pay-at-hotel info box */}
           {selectedMethod === "hotel" && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2 animate-fadeIn">
               <div className="flex items-start gap-2 text-amber-800">
@@ -178,7 +168,6 @@ export default function PaymentPage(): React.ReactElement {
             </div>
           )}
 
-          {/* Terms checkbox */}
           <label className="flex items-start gap-3 cursor-pointer group mt-2">
             <div
               role="checkbox"
@@ -222,7 +211,6 @@ export default function PaymentPage(): React.ReactElement {
             </span>
           </label>
 
-          {/* CTA */}
           <button
             onClick={handleConfirm}
             disabled={!agreed || loading}
@@ -272,7 +260,6 @@ export default function PaymentPage(): React.ReactElement {
           </p>
         </section>
 
-        {/* Right: summary */}
         <aside className="lg:col-span-2">
           <BookingSummaryCard booking={booking} />
         </aside>
@@ -300,7 +287,3 @@ export default function PaymentPage(): React.ReactElement {
     </div>
   );
 }
-
-// ─────────────────────────────────────────────
-// SUB-COMPONENTS
-// ─────────────────────────────────────────────
