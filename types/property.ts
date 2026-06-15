@@ -34,17 +34,10 @@ export interface ApiProperty {
 export interface SearchApiProperty {
   id: number
   name: string
-  timezone: string
-  city: string
-  state: string
-  country: string
+  lowestPrice:number
   address: string
-  contactEmail: string
-  contactPhone: string
-  createdAt: string
-  updatedAt: string
-  inventories: any[]
-  reservations: any[]
+  rating:string
+  
 }
 
 

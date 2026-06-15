@@ -1,5 +1,6 @@
 // 'use server'
 import { BookingPayload,Booking, Bookings } from "@/types/booking";
+import { Console } from "console";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const saveBookingInfo = async(
@@ -43,28 +44,37 @@ export const BookingDetailsPerCustomer =
         `${API_URL}/v1/res/my-bookings`,
         {
           method: "GET",
-          credentials: "include",
-          
-        }
-      );
-
+          credentials: "include", 
+        });
       if (!response.ok) {
-
         throw new Error(
           `Failed to fetch booking details:
           ${response.status}`
         );
       }
-
       const data: Bookings[] =
         await response.json();
-
       return data;
-
     } catch (error) {
-
       console.log(error);
-
       return [];
     }
+};
+
+export const confirmPayAtHotelBooking = async (
+  bookingId: string
+): Promise<void> => {
+  console.log(`${API_URL}/v1/res/payments/success/${bookingId}`);
+  
+  const response = await fetch(
+    `${API_URL}/v1/res/payments/success/${bookingId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to confirm booking");
+  }
 };

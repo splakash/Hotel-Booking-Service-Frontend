@@ -45,6 +45,5 @@ export const searchPropertiesApi = async (
   if (!response.ok) {
     throw new Error(`Failed to search properties: ${response.statusText}`)
   }
-  
   return response.json()
 }

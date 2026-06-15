@@ -89,7 +89,7 @@ export const searchPropertiesService = async (
     address: apiProp.address,
     image:
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-    lowestPrice: 0,
+    lowestPrice:apiProp.lowestPrice,
     rating: 0,
   }))
 }

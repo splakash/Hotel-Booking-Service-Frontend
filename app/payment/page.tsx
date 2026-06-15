@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/icons";
 import { paymentMethods } from "@/components/paymentMethods";
 import { Bookings } from "@/types/booking";
-import { fetchBookingDetails } from "@/api/bookingAPI";
+import {
+  fetchBookingDetails,
+  confirmPayAtHotelBooking,
+} from "@/api/bookingAPI";
 import { error } from "console";
 import {
   PaymentMethodCard,
@@ -52,14 +55,20 @@ export default function PaymentPage(): React.ReactElement {
     fetchData();
   }, []);
 
-  const handleConfirm = (): void => {
+  const handleConfirm = async (): Promise<void> => {
     if (!agreed) return;
-    setLoading(true);
-    // TODO: replace setTimeout with your real booking API call
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      setLoading(true);
+
+      await confirmPayAtHotelBooking(bookingId);
+
       setConfirmed(true);
-    }, 2000);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!booking) {
