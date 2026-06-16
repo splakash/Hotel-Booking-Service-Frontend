@@ -1,32 +1,27 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { Bookings } from "@/types/booking";
 import { useState, useEffect } from "react";
 import { fetchBookingDetails } from "@/api/bookingAPI";
 
-type BookingDetailsClientProps = {
-  bookingCode: string;
-};
-
-export default function BookingDetailsClient({
-  bookingCode,
-}: BookingDetailsClientProps) {
+export default function BookingDetailsPage() {
+  const searchParams = useSearchParams();
+  const bookingId = searchParams.get("BookingCode") || "xyz";
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [isCancel, setCancel] = useState(true);
   const discount = 0;
   const tax = 0;
-
-  function updateCancelOption(status: string) {
+  function updateCancelOption(status: string, checkinTime: string) {
     if (status === "PENDING PAYMENT") setCancel(false);
   }
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetchBookingDetails(bookingCode);
+        const response = await fetchBookingDetails(bookingId);
         setBooking(response);
-        updateCancelOption(response.status);
+        updateCancelOption(response.status, response.checkIn);
       } catch (error) {
         console.log(error);
       } finally {
@@ -34,7 +29,7 @@ export default function BookingDetailsClient({
       }
     };
     fetchData();
-  }, [bookingCode]);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -42,14 +37,18 @@ export default function BookingDetailsClient({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navbar already exists */}
+
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          {/* Header */}
           <div className="bg-primary-600 text-white px-6 py-5">
             <h1 className="text-2xl font-bold">Booking Details</h1>
             <p className="text-sm opacity-90">Booking Code: {booking?.code}</p>
           </div>
 
           <div className="p-6 space-y-8">
+            {/* Hotel Details */}
             <section>
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 Hotel Information
@@ -65,6 +64,7 @@ export default function BookingDetailsClient({
               </div>
             </section>
 
+            {/* Booking Details */}
             <section>
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 Booking Information
@@ -92,6 +92,7 @@ export default function BookingDetailsClient({
               </div>
             </section>
 
+            {/* Stay Details */}
             <section>
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 Stay Details
@@ -108,6 +109,7 @@ export default function BookingDetailsClient({
               </div>
             </section>
 
+            {/* Guest Details */}
             <section>
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 Guest Information
@@ -122,6 +124,7 @@ export default function BookingDetailsClient({
               </div>
             </section>
 
+            {/* Payment */}
             <section>
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 Payment Summary
@@ -152,6 +155,7 @@ export default function BookingDetailsClient({
               </div>
             </section>
 
+            {/* Actions */}
             <div className="flex gap-4">
               <button className="bg-primary-600 text-white px-5 py-2 rounded-lg">
                 Download Invoice

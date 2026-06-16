@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bookings } from "@/types/booking";
 import { useAuth } from "@/authContext";
 import { BookingDetailsPerCustomer } from "@/api/bookingAPI";
+import { Router } from "next/router";
 import { useRouter } from "next/navigation";
 
 export default function BookingsPage() {
@@ -27,7 +28,7 @@ export default function BookingsPage() {
   }, []);
 
   const redirectToBookingDetails = (code: string) => {
-    router.push(`/booking-details/${code}`);
+    router.push(`/BookingsDetailsPage?BookingCode=${code}`);
   };
   const getStatusColor = (status: string) => {
     switch (status) {

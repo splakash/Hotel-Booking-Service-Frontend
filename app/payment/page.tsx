@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { PaymentMethodId } from "@/types/payment";
+import { useSearchParams, useRouter } from "next/navigation";
+import { BookingSummaryCardProps, PaymentMethodId } from "@/types/payment";
 import {
   InfoIcon,
   CheckIcon,
@@ -15,20 +15,25 @@ import {
   fetchBookingDetails,
   confirmPayAtHotelBooking,
 } from "@/api/bookingAPI";
+import { error } from "console";
 import {
   PaymentMethodCard,
   SuccessScreen,
   BookingSummaryCard,
 } from "@/components/paymentComponent/paymentMethodCard";
 
-type PaymentClientProps = {
-  bookingId: string;
-};
+// ─────────────────────────────────────────────
+// PAYMENT METHOD
+// ─────────────────────────────────────────────
 
-export default function PaymentClient({
-  bookingId,
-}: PaymentClientProps): React.ReactElement {
+// ─────────────────────────────────────────────
+// MAIN PAGE
+// ─────────────────────────────────────────────
+
+export default function PaymentPage(): React.ReactElement {
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const bookingId = searchParams.get("bookingId") || "abcdef";
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] =
@@ -48,7 +53,7 @@ export default function PaymentClient({
       }
     };
     fetchData();
-  }, [bookingId]);
+  }, []);
 
   const handleConfirm = async (): Promise<void> => {
     if (!agreed) return;
@@ -76,6 +81,7 @@ export default function PaymentClient({
 
   return (
     <div className="min-h-screen bg-[#F5F0EA] font-sans">
+      {/* ── Header ── */}
       <header className="bg-[#1C1C1E] text-white px-4 py-4 flex items-center justify-between sticky top-0 z-50 shadow-lg">
         <div className="flex items-center gap-3">
           <button
@@ -95,6 +101,7 @@ export default function PaymentClient({
         </div>
       </header>
 
+      {/* ── Progress bar ── */}
       <div className="bg-[#1C1C1E] px-4 pb-4">
         <div className="max-w-4xl mx-auto flex items-center gap-2 text-xs">
           {(["Room Selection", "Guest Details", "Payment"] as const).map(
@@ -124,7 +131,9 @@ export default function PaymentClient({
         </div>
       </div>
 
+      {/* ── Main grid ── */}
       <main className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Left: payment methods */}
         <section className="lg:col-span-3 space-y-4">
           <div>
             <h1 className="text-2xl font-bold text-[#1C1C1E] tracking-tight">
@@ -149,6 +158,7 @@ export default function PaymentClient({
             ))}
           </div>
 
+          {/* Pay-at-hotel info box */}
           {selectedMethod === "hotel" && (
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2 animate-fadeIn">
               <div className="flex items-start gap-2 text-amber-800">
@@ -168,6 +178,7 @@ export default function PaymentClient({
             </div>
           )}
 
+          {/* Terms checkbox */}
           <label className="flex items-start gap-3 cursor-pointer group mt-2">
             <div
               role="checkbox"
@@ -211,6 +222,7 @@ export default function PaymentClient({
             </span>
           </label>
 
+          {/* CTA */}
           <button
             onClick={handleConfirm}
             disabled={!agreed || loading}
@@ -260,6 +272,7 @@ export default function PaymentClient({
           </p>
         </section>
 
+        {/* Right: summary */}
         <aside className="lg:col-span-2">
           <BookingSummaryCard booking={booking} />
         </aside>
@@ -287,3 +300,7 @@ export default function PaymentClient({
     </div>
   );
 }
+
+// ─────────────────────────────────────────────
+// SUB-COMPONENTS
+// ─────────────────────────────────────────────
