@@ -37,7 +37,6 @@ export const fetchBookingDetails = async( bookingId : string) : Promise<Bookings
 export const BookingDetailsPerCustomer =
 
   async (): Promise<Bookings[]> => {
-      
     try {
       
       const response = await fetch(
@@ -64,8 +63,6 @@ export const BookingDetailsPerCustomer =
 export const confirmPayAtHotelBooking = async (
   bookingId: string
 ): Promise<void> => {
-  console.log(`${API_URL}/v1/res/payments/success/${bookingId}`);
-  
   const response = await fetch(
     `${API_URL}/v1/res/payments/success/${bookingId}`,
     {

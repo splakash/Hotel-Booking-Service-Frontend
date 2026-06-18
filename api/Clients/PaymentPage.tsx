@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { BookingSummaryCardProps, PaymentMethodId } from "@/types/payment";
+import { useRouter } from "next/navigation";
+import { PaymentMethodId } from "@/types/payment";
 import {
   InfoIcon,
   CheckIcon,
@@ -15,13 +15,14 @@ import {
   fetchBookingDetails,
   confirmPayAtHotelBooking,
 } from "@/api/bookingAPI";
-import { error } from "console";
 import {
   PaymentMethodCard,
   SuccessScreen,
   BookingSummaryCard,
 } from "@/components/paymentComponent/paymentMethodCard";
-
+interface Props {
+  bookingId: string;
+}
 // ─────────────────────────────────────────────
 // PAYMENT METHOD
 // ─────────────────────────────────────────────
@@ -30,10 +31,8 @@ import {
 // MAIN PAGE
 // ─────────────────────────────────────────────
 
-export default function PaymentPage(): React.ReactElement {
-  const searchParams = useSearchParams();
+export default function PaymentPage({ bookingId }: Props) {
   const router = useRouter();
-  const bookingId = searchParams.get("bookingId") || "abcdef";
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] =

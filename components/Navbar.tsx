@@ -1,9 +1,11 @@
 "use client";
+
 import Link from "next/link";
-import { cookies } from "next/headers";
+import ProfileMenu from "./ProfileMenu";
 import MobileMenu from "./MobileMenu";
 import { logout } from "@/lib/actions/logout";
 import { useAuth } from "@/authContext";
+
 export default function Navbar() {
   const { isLoggedIn } = useAuth();
 
@@ -23,6 +25,7 @@ export default function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-primary-600">
               Home
             </Link>
+
             {!isLoggedIn ? (
               <Link
                 href="/login"
@@ -38,12 +41,14 @@ export default function Navbar() {
                 My Bookings
               </Link>
             )}
+
             <Link
               href="/error_page"
               className="text-gray-700 hover:text-primary-600"
             >
               Admin
             </Link>
+
             <Link href="/docs" className="text-gray-700 hover:text-primary-600">
               Docs
             </Link>
@@ -51,19 +56,18 @@ export default function Navbar() {
             {!isLoggedIn ? (
               <Link
                 href="/login"
-                className="bg-primary-600 text-white px-4 py-2 rounded-lg rounded"
+                className="bg-primary-600 text-white px-4 py-2 rounded-lg"
               >
                 Login
               </Link>
             ) : (
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
-                >
-                  Logout
-                </button>
-              </form>
+              <ProfileMenu
+                user={{
+                  name: "name",
+                  email: "email",
+                }}
+                logout={logout}
+              />
             )}
           </div>
 

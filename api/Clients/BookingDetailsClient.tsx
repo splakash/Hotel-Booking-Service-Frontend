@@ -1,13 +1,12 @@
 "use client";
-
-import { useSearchParams } from "next/navigation";
 import { Bookings } from "@/types/booking";
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import { fetchBookingDetails } from "@/api/bookingAPI";
 
-export default function BookingDetailsPage() {
-  const searchParams = useSearchParams();
-  const bookingId = searchParams.get("BookingCode") || "xyz";
+interface Props {
+  bookingId: string;
+}
+export default function BookingDetailsClient({ bookingId }: Props) {
   const [booking, setBooking] = useState<Bookings>();
   const [loading, setLoading] = useState(true);
   const [isCancel, setCancel] = useState(true);
@@ -17,19 +16,9 @@ export default function BookingDetailsPage() {
     if (status === "PENDING PAYMENT") setCancel(false);
   }
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetchBookingDetails(bookingId);
-        setBooking(response);
-        updateCancelOption(response.status, response.checkIn);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    fetchBookingDetails(bookingId).then(setBooking).catch(console.error);
+    setLoading(false);
+  }, [bookingId]);
 
   if (loading) {
     return <div>Loading...</div>;

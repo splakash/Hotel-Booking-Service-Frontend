@@ -1,62 +1,63 @@
-import { useEffect, useState } from "react"
-import { Properties } from "@/types/property"
-import { getAllProperties, searchPropertiesService } from "@/lib/services/property.service"
+import { useEffect, useState } from "react";
+import { Properties } from "@/types/property";
+import {
+  getAllProperties,
+  searchPropertiesService,
+} from "@/lib/services/property.service";
 
-export const usePropertyList = (
-  checkIn: string,
-  checkOut: string,
-  location: string,
-  urlDeps: any[]
-) => {
-  const [properties, setProperties] = useState<Properties[]>([])
-  const [loading, setLoading] = useState(true)
+export function usePropertyList() {
+  const [properties, setProperties] = useState<Properties[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const searchProperties = async () => {
-    if (!checkIn || !checkOut || !location) return
+  const loadAllProperties = async () => {
+    setLoading(true);
 
-    setLoading(true)
+    try {
+      const result = await getAllProperties();
+      setProperties(result);
+    } catch (error) {
+      console.error(error);
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const searchProperties = async (
+    checkIn: string,
+    checkOut: string,
+    location: string
+  ) => {
+    if (!checkIn || !checkOut || !location) {
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const result = await searchPropertiesService(
         checkIn,
         checkOut,
         location
-      )
-      setProperties(result)
+      );
+
+      setProperties(result);
     } catch (error) {
-      console.error("Error searching properties:", error)
-      setProperties([])
+      console.error(error);
+      setProperties([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      if (checkIn && checkOut && location) {
-        await searchProperties()
-        return
-      }
+    loadAllProperties();
+  }, []);
 
-      setLoading(true)
-      try {
-        const result = await getAllProperties()
-        setProperties(result)
-      } catch (error) {
-        console.error("Error fetching properties:", error)
-        setProperties([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProperties()
-  }, [])
-
-  useEffect(() => {
-    if (checkIn && checkOut && location) {
-      searchProperties()
-    }
-  }, urlDeps)
-
-  return { properties, loading, searchProperties }
+  return {
+    properties,
+    loading,
+    searchProperties,
+    loadAllProperties,
+  };
 }
