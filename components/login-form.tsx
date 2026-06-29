@@ -111,7 +111,8 @@ export default function LoginForm({
             variant="outline"
             className="w-full"
             onClick={() => {
-              window.location.href = "/auth/google";
+              window.location.href =
+                "https://hotel-booking-service-rgs2.onrender.com/oauth2/authorization/google";
             }}
           >
             <svg

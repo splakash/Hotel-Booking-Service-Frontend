@@ -10,22 +10,15 @@ interface UserData {
 
 interface ProfileMenuProps {
   user: UserData;
-  logout: () => Promise<void>;
 }
 
-export default function ProfileMenu({
-  user,
-  logout,
-}: ProfileMenuProps) {
+export default function ProfileMenu({ user }: ProfileMenuProps) {
   const [open, setOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     };
@@ -33,10 +26,7 @@ export default function ProfileMenu({
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -48,11 +38,7 @@ export default function ProfileMenu({
         onClick={() => setOpen((prev) => !prev)}
         className="w-10 h-10 rounded-full bg-primary-600 text-white font-semibold flex items-center justify-center"
       >
-        {user?.name ? (
-          user.name.charAt(0).toUpperCase()
-        ) : (
-          <User size={20} />
-        )}
+        {user?.name ? user.name.charAt(0).toUpperCase() : <User size={20} />}
       </button>
 
       {/* Dropdown */}
@@ -66,16 +52,6 @@ export default function ProfileMenu({
               {user?.email ?? "No email available"}
             </p>
           </div>
-
-          <form action={logout}>
-            <button
-              type="submit"
-              className="w-full flex items-center gap-2 px-4 py-3 text-red-500 hover:bg-gray-100"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
-          </form>
         </div>
       )}
     </div>

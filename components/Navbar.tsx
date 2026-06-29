@@ -49,10 +49,6 @@ export default function Navbar() {
               Admin
             </Link>
 
-            <Link href="/docs" className="text-gray-700 hover:text-primary-600">
-              Docs
-            </Link>
-
             {!isLoggedIn ? (
               <Link
                 href="/login"
@@ -66,7 +62,6 @@ export default function Navbar() {
                   name: "name",
                   email: "email",
                 }}
-                logout={logout}
               />
             )}
           </div>
